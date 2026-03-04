@@ -1,0 +1,13 @@
+# Environnements virtuels (noms les plus courants)
+venv/
+.venv/
+env/
+bin/
+Lib/
+include/
+pyvenv.cfg
+
+# Cache Python
+__pycache__/
+*.py[cod]
+*$py.class

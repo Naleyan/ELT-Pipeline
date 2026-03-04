@@ -1,0 +1,7 @@
+github_analytics:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "github_analytics.duckdb"
+      threads: 4
