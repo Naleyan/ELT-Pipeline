@@ -1,5 +1,8 @@
 {{ config(
-    materialized='view'
+    materialized='incremental',
+    schema='silver',
+    unique_key='commit_sha',
+    incremental_strategy='append'
 ) }}
 
 with source as (
@@ -34,3 +37,8 @@ cleaned as (
 )
 
 select * from cleaned
+
+
+{% if is_incremental() %}
+where author_date > (select max(author_date) from {{ this }})
+{% endif %}

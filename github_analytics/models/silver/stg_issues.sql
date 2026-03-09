@@ -1,5 +1,6 @@
 {{ config(
-    materialized='view'
+    materialized='incremental',
+    unique_key='issue_id'
 ) }}
 
 with source as (
@@ -9,31 +10,35 @@ with source as (
 
 ),
 
+filtered as (
+
+    select *
+    from source
+
+    {% if is_incremental() %}
+    where updated_at > (select max(updated_at) from {{ this }})
+    {% endif %}
+
+),
+
 cleaned as (
 
     select
-        repo_full_name                              as repo_id,
-        cast(issue_number as integer)               as issue_number,
-
-        cast(created_at as timestamp)               as created_at,
-        cast(closed_at as timestamp)                as closed_at,
-
-        cast(is_pull_request as boolean)            as is_pull_request,
-
-        case
-            when closed_at is not null then
-                datediff('hour',
-                         cast(created_at as timestamp),
-                         cast(closed_at as timestamp))
-            else null
-        end                                         as time_to_close_hours
-
-    from source
+        cast(issue_number as integer) as issue_id,
+        cast(issue_number as integer) as issue_number,
+        repo_full_name as repo_id,
+        user_login as reporter_id,
+        cast(is_pull_request as boolean) as is_pull_request,
+        cast(created_at as timestamp) as created_at,
+        cast(updated_at as timestamp) as updated_at,
+        cast(closed_at as timestamp) as closed_at,
+        coalesce(title, 'No Title') as title,
+        state
+    from filtered
     where issue_number is not null
 
 )
 
--- IMPORTANT : keep only REAL issues
 select *
 from cleaned
 where is_pull_request = false

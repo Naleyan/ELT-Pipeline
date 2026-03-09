@@ -1,0 +1,56 @@
+version: 2
+
+models:
+  - name: stg_repositories
+    columns:
+      - name: repo_id
+        tests:
+          - not_null
+          - unique
+      - name: language
+        tests:
+          - not_null
+      - name: archived
+        tests:
+          - accepted_values:
+              values: [true, false]
+
+  - name: stg_commits
+    columns:
+      - name: commit_sha
+        tests:
+          - not_null
+          - unique
+      - name: author_login
+        tests:
+          - not_null
+      - name: day_of_week
+        tests:
+          - accepted_values:
+              values: [0,1,2,3,4,5,6]
+
+  - name: stg_pull_requests
+    columns:
+      - name: pr_number
+        tests:
+          - not_null
+          - unique
+      - name: is_merged
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: is_draft
+        tests:
+          - accepted_values:
+              values: [true, false]
+
+  - name: stg_issues
+    columns:
+      - name: issue_number
+        tests:
+          - not_null
+          - unique
+      - name: is_pull_request
+        tests:
+          - accepted_values:
+              values: [true, false]
